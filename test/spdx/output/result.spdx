@@ -1,26 +1,25 @@
-# Document Information
-
+## Document Information
 SPDXVersion: SPDX-2.3
 DataLicense: CC0-1.0
-DocumentNamespace: https://philips.example.com
-DocumentName: sample-sbom-spdx
-LicenseListVersion: 3.20
 SPDXID: SPDXRef-DOCUMENT
-ExternalDocumentRef: SPDXRef-DOCUMENT https://spdx.org/510f728d-05b2-4e32-8501-550587c39a2a SHA1: afde1f15aa7df28bea3625fd1260d17a0ac1cf0c
-ExternalDocumentRef: SPDXRef-DOCUMENT https://spdx.org/510f728d-05b2-4e32-8501-550587c39a2a SHA1: afde1f15aa7df28bea3625fd1260d17a0ac1cf0c
+DocumentName: test
+DocumentNamespace: https://spdx.organization.name
 
+## External Document References
+ExternalDocumentRef: DocumentRef-2e221d39-4544-4129-b88b-f9bea0373699 https://spdx.org/510f728d-05b2-4e32-8501-550587c39a2a SHA1: 3374ac343c88d6acf53d90334b4223701219ffb8
+ExternalDocumentRef: DocumentRef-8779ab53-3e62-4558-aa18-e6255cd0b421 https://spdx.org/510f728d-05b2-4e32-8501-550587c39a2a SHA1: 3374ac343c88d6acf53d90334b4223701219ffb8
 
-# Creation Info
+## Creation Information
+Creator: Organization: Test
+Created: 2023-10-06T16:18:47Z
 
-Creator: Person: ci/cd build pipeline (test@mail.com)
-Created: 2023-02-24T12:34:24Z
-
-
-# Package
-
-PackageName: sample-sbom-spdx
-SPDXID: https://philips.example.com#SPDXRef-DOCUMENT
-PackageVersion: 1.0
+## Package Information
+PackageName: test
+SPDXID: SPDXRef-package-26b68abc-8ba6-4383-b42d-2b59951e815d
+PackageVersion: R.00.00-1612
+PackageSupplier: Organization: Test
 PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: True
 
-
+## Relationships
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-package-26b68abc-8ba6-4383-b42d-2b59951e815d

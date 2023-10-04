@@ -5,7 +5,9 @@ import click
 
 sys.path.insert(0, "/".join(os.path.dirname(__file__).split('/')[:-1]))
 
-from spdxmerge.SPDXMergeLib import create_merged_spdx_document, write_file
+from spdx_tools.spdx.writer.write_anything import write_file
+
+from spdxmerge.SPDXMergeLib import create_merged_spdx_document
 from spdxmerge.utils import read_docs
 
 
@@ -28,7 +30,12 @@ def main(docpath, name, mergetype, author, email, docnamespace, filetype, outpat
     doc_list = read_docs(docpath)
     merge_type = "shallow" if mergetype == '0' else "deep"
     doc = create_merged_spdx_document(doc_list, docnamespace, name, author, email, merge_type)
-    write_file(doc, filetype, merge_type, outpath)
+
+    if filetype in ["T", "t"]:
+        out_format = "spdx"
+    else:
+        out_format = "json"
+    write_file(doc, outpath + f"/merged-SBoM-{merge_type}-{name}.{out_format}")
 
 
 if __name__ == "__main__":

@@ -2,200 +2,151 @@ from datetime import datetime
 
 from spdxmerge.SPDX_DeepMerge import SPDX_DeepMerger
 
-from spdx.annotation import Annotation
-from spdx.creationinfo import Person
-from spdx.document import Document
-from spdx.file import File
-from spdx.license import License
-from spdx.package import Package
-from spdx.relationship import Relationship
-from spdx.review import Review
-from spdx.snippet import Snippet
-from spdx.version import Version
+from spdx_tools.spdx.model import (
+    Actor,
+    ActorType,
+    Annotation,
+    AnnotationType,
+    Checksum,
+    ChecksumAlgorithm,
+    CreationInfo,
+    Document,
+    ExtractedLicensingInfo,
+    File,
+    Package,
+    Relationship,
+    RelationshipType,
+    Snippet,
+    SpdxNoAssertion,
+)
+from spdx_tools.spdx.constants import DOCUMENT_SPDX_ID
 
 class TestSPDXDeepMerger:
 
-    def test_document_creation(self):
-        doc1 = Document(
-                name="Test document 1",
-                spdx_id="SPDXRef-DOCUMENT1",
-                namespace="http://example.com/spdx",
-                data_license=License.from_identifier("CC0-1.0")
+    def test_document(self):
+        docs = []
+        for idx in range(2):
+            # Create documents
+            creation_info = CreationInfo(
+                spdx_version="SPDX-2.3",
+                spdx_id=DOCUMENT_SPDX_ID,
+                name="Test document " + str(idx+1),
+                data_license="CC0-1.0",
+                document_namespace="http://example.com/spdx",
+                creators=[Actor(ActorType.PERSON, "John Smith", "john@example.com")],
+                created=datetime.now(),
             )
-        doc1.creation_info.add_creator(Person("John Smith", "john@example.com"))
+            docs.append(Document(creation_info))
 
-        merger = SPDX_DeepMerger(doc_list=[doc1], docnamespace="https://example.com", name="Test Document", author="Test Author", email="test@example.com")
-        merger.doc_creationinfo()
+            # Add package information to each document
+            package = Package(
+                spdx_id="SPDXRef-package-" + str(idx+1),
+                name="Package " + str(idx+1),
+                download_location=SpdxNoAssertion(),
+            )
+            docs[idx].packages.append(package)
 
-        doc = merger.get_document()
-        assert doc.name == "Test Document"
-        assert doc.version == Version(2,3)
-        assert doc.spdx_id == "https://example.com#SPDXRef-DOCUMENT"
-        assert doc.namespace == "https://example.com"
-        assert doc.data_license == License.from_identifier("CC0-1.0")
-        assert len(doc.creation_info.creators) == 1
-        assert doc.creation_info.creators[0].name == "Test Author"
+            # Add file information to each document
+            file = File(
+                spdx_id="SPDXRef-file-" + str(idx+1),
+                name = "File " + str(idx+1),
+                checksums = [Checksum(ChecksumAlgorithm.SHA256, "Test_checksum_" + str(idx+1))]
+            )
+            docs[idx].files.append(file)
 
-    def test_package_info(self):
-        doc1 = Document()
-        package1 = Package(name = "Package 1")
-        doc1.add_package(package1)
+            # Add snippet information to each document
+            snippet = Snippet(
+                spdx_id="SPDXRef-file-" + str(idx+1),
+                file_spdx_id = "File " + str(idx+1),
+                byte_range = (8, 16)
+            )
+            docs[idx].snippets.append(snippet)
 
-        doc2 = Document()
-        package2 = Package(name = "Package 2")
-        doc2.add_package(package2)
+            # Add extracted licensing information to each document
+            extracted_licensing_info = ExtractedLicensingInfo(license_name="License_" + str(idx+1))
+            docs[idx].extracted_licensing_info.append(extracted_licensing_info)
 
-        merger = SPDX_DeepMerger(doc_list=[doc1, doc2])
-        merger.doc_packageinfo()
+            # Add relationship information to each document
+            docs[idx].relationships.append(Relationship(
+                spdx_element_id=docs[idx].creation_info.spdx_id,
+                relationship_type=RelationshipType.DESCRIBES,
+                related_spdx_element_id=docs[idx].packages[0].spdx_id
+                )
+            )
 
-        doc = merger.get_document()
-        assert len(doc.packages) == 2
-        assert doc.packages[0].name == "Package 1"
-        assert doc.packages[1].name == "Package 2"
+            # Add annotation information to each document
+            annotation = Annotation(
+                spdx_id="SPDXRef-annotation-" + str(idx+1),
+                annotation_type=AnnotationType.REVIEW,
+                annotator=Actor(ActorType.PERSON, "John Smith", "john@example.com"),
+                annotation_date=datetime.now(),
+                annotation_comment="Comment " + str(idx+1)
+            )
+            docs[idx].annotations.append(annotation)
 
-    def test_file_info(self):
-        doc1 = Document()
-        file1 = File(name="file1")
-        doc1.add_file(file1)
-
-        doc2 = Document()
-        file2 = File(name="file2")
-        doc2.add_file(file2)
-
-        merger = SPDX_DeepMerger(doc_list=[doc1, doc2])
-        merger.doc_fileinfo()
-
-        doc = merger.get_document()
-        assert len(doc.files) == 2
-        assert doc.files[0].name == "file1"
-        assert doc.files[1].name == "file2"
-
-    def test_snippet_info(self):
-        doc1 = Document()
-        snippet1 = Snippet()
-        snippet1.comment = "snip1"
-        doc1.add_snippet(snippet1)
-
-        doc2 = Document()
-        snippet2 = Snippet()
-        snippet2.comment = "snip2"
-        doc2.add_snippet(snippet2)
-
-        merger = SPDX_DeepMerger(doc_list=[doc1, doc2])
-        merger.doc_snippetinfo()
-
-        doc = merger.get_document()
-        assert len(doc.snippet) == 2
-        assert doc.snippet[0].comment == "snip1"
-        assert doc.snippet[1].comment == "snip2"
-
-    def test_other_license_info(self):
-        doc1 = Document()
-        license1 = License.from_identifier("License1")
-        doc1.add_extr_lic(license1)
-
-        doc2 = Document()
-        license2 = License.from_identifier("License2")
-        doc1.add_extr_lic(license2)
-
-        merger = SPDX_DeepMerger(doc_list=[doc1, doc2])
-        merger.doc_other_license_info()
-
-        doc = merger.get_document()
-        assert len(doc.extracted_licenses) == 2
-        assert doc.extracted_licenses[0].full_name == "License1"
-        assert doc.extracted_licenses[0].identifier == "License1"
-        assert doc.extracted_licenses[1].full_name == "License2"
-        assert doc.extracted_licenses[1].identifier == "License2"
-
-    def test_relationship_info(self):
-        # Create two sample SPDX documents
-        doc1 = Document()
-        doc2 = Document()
-        doc1.spdx_id = "SPDXRef-DOCUMENT1"
-        doc2.spdx_id = "SPDXRef-DOCUMENT2"
-
-        # Add relationship information to each document
-        rel1 = Relationship("SPDXRef-PACKAGE1 DESCRIBES SPDXRef-DOCUMENT1")
-        rel2 = Relationship("SPDXRef-PACKAGE2 DEPENDS_ON SPDXRef-PACKAGE1")
-        doc1.add_relationship(rel1)
-        doc2.add_relationship(rel2)
+        # Add package DEPENDS_ON relationship
+        docs[0].relationships.append(Relationship(
+            spdx_element_id=docs[0].packages[0].spdx_id,
+            relationship_type=RelationshipType.DEPENDS_ON,
+            related_spdx_element_id=docs[1].packages[0].spdx_id
+            )
+        )
 
         # Merge the two documents using SPDX_DeepMerger
-        merger = SPDX_DeepMerger([doc1, doc2], "https://example.com/spdx", "Test Document", "John Doe", "john@example.com")
-        merger.doc_creationinfo()
-        merger.doc_relationship_info()
-        merged_doc = merger.get_document()
+        merger = SPDX_DeepMerger(doc_list=docs, docnamespace="https://example.com", name="Test Document",
+                                 author="Test Author")
+        merge_doc = merger.create_document()
 
-        # Verify that the merged document contains all the relationship information from both documents
-        assert len(merged_doc.relationships) == 4
-        assert merged_doc.relationships[0].relationship_type == "DESCRIBES"
-        assert merged_doc.relationships[0].related_spdx_element == doc1.spdx_id
-        assert merged_doc.relationships[0].spdx_element_id == "https://example.com/spdx#SPDXRef-DOCUMENT"
+        # Verify that the merged document
+        assert merge_doc.creation_info.name == "Test Document"
+        assert merge_doc.creation_info.spdx_version == "SPDX-2.3"
+        assert merge_doc.creation_info.spdx_id == DOCUMENT_SPDX_ID
+        assert merge_doc.creation_info.document_namespace == "https://example.com"
+        assert merge_doc.creation_info.data_license == "CC0-1.0"
+        assert len(merge_doc.creation_info.creators) == 1
+        assert merge_doc.creation_info.creators[0].name == "Test Author"
 
-        assert merged_doc.relationships[1].relationship_type == "DESCRIBES"
-        assert merged_doc.relationships[1].related_spdx_element == doc1.spdx_id
-        assert merged_doc.relationships[1].spdx_element_id == "SPDXRef-PACKAGE1"
+        assert len(merge_doc.packages) == 2
+        assert merge_doc.packages[0].name == "Package 1"
+        assert merge_doc.packages[1].name == "Package 2"
 
-        assert merged_doc.relationships[2].relationship_type == "DESCRIBES"
-        assert merged_doc.relationships[2].related_spdx_element == doc2.spdx_id
-        assert merged_doc.relationships[2].spdx_element_id == "https://example.com/spdx#SPDXRef-DOCUMENT"
+        assert len(merge_doc.files) == 2
+        assert merge_doc.files[0].name == "File 1"
+        assert merge_doc.files[0].checksums[0].algorithm == ChecksumAlgorithm.SHA256
+        assert merge_doc.files[0].checksums[0].value == "Test_checksum_1"
+        assert merge_doc.files[1].name == "File 2"
+        assert merge_doc.files[1].checksums[0].algorithm == ChecksumAlgorithm.SHA256
+        assert merge_doc.files[1].checksums[0].value == "Test_checksum_2"
 
-        assert merged_doc.relationships[3].relationship_type == "DEPENDS_ON"
-        assert merged_doc.relationships[3].related_spdx_element == "SPDXRef-PACKAGE1"
-        assert merged_doc.relationships[3].spdx_element_id == "SPDXRef-PACKAGE2"
+        assert len(merge_doc.snippets) == 2
+        assert merge_doc.snippets[0].file_spdx_id == "File 1"
+        assert merge_doc.snippets[0].byte_range == (8, 16)
+        assert merge_doc.snippets[1].file_spdx_id == "File 2"
+        assert merge_doc.snippets[1].byte_range == (8, 16)
 
+        assert len(merge_doc.extracted_licensing_info) == 2
+        assert merge_doc.extracted_licensing_info[0].license_name == "License_1"
+        assert merge_doc.extracted_licensing_info[1].license_name == "License_2"
 
+        assert len(merge_doc.relationships) == 3
+        assert merge_doc.relationships[0].relationship_type == RelationshipType.DESCRIBES
+        assert merge_doc.relationships[0].spdx_element_id == docs[0].creation_info.spdx_id
+        assert merge_doc.relationships[0].related_spdx_element_id == docs[0].packages[0].spdx_id
 
-    def test_annotation_info(self):
-        # Create two sample SPDX documents
-        doc1 = Document()
-        doc2 = Document()
-        doc1.spdx_id = "SPDXRef-DOCUMENT1"
-        doc2.spdx_id = "SPDXRef-DOCUMENT2"
+        assert merge_doc.relationships[1].relationship_type == RelationshipType.DEPENDS_ON
+        assert merge_doc.relationships[1].spdx_element_id == docs[0].packages[0].spdx_id
+        assert merge_doc.relationships[1].related_spdx_element_id == docs[1].packages[0].spdx_id
 
-        # Add annotation information to each document
-        ann1 = Annotation(spdx_id="SPDXRef-PACKAGE1", comment="This is a comment", annotator="John Doe")
-        ann2 = Annotation(spdx_id="SPDXRef-PACKAGE2", comment="Another comment", annotator="Jane Smith")
-        doc1.annotations.append(ann1)
-        doc2.annotations.append(ann2)
+        assert merge_doc.relationships[2].relationship_type == RelationshipType.DESCRIBES
+        assert merge_doc.relationships[2].spdx_element_id == docs[1].creation_info.spdx_id
+        assert merge_doc.relationships[2].related_spdx_element_id == docs[1].packages[0].spdx_id
 
-        # Merge the two documents using SPDX_DeepMerger
-        merger = SPDX_DeepMerger([doc1, doc2], "https://example.com/spdx", "Test Document", "John Doe", "john@example.com")
-        merger.doc_creationinfo()
-        merger.doc_annotation_info()
-        merged_doc = merger.get_document()
-
-        # Verify that the merged document contains all the annotation information from both documents
-        assert len(merged_doc.annotations) == 2
-        assert merged_doc.annotations[0].comment == "This is a comment"
-        assert merged_doc.annotations[0].annotator == "John Doe"
-        assert merged_doc.annotations[1].comment == "Another comment"
-        assert merged_doc.annotations[1].annotator == "Jane Smith"
-
-
-    def test_review_info(self):
-        # Create two sample SPDX documents
-        doc1 = Document()
-        doc2 = Document()
-        doc1.spdx_id = "SPDXRef-DOCUMENT1"
-        doc2.spdx_id = "SPDXRef-DOCUMENT2"
-
-        # Add review information to each document
-        rev1 = Review("Reviewer 1", datetime.date, "Looks good to me")
-        rev2 = Review("Reviewer 2", datetime.date, "I have some concerns about this file")
-        doc1.reviews.append(rev1)
-        doc2.reviews.append(rev2)
-
-        # Merge the two documents using SPDX_DeepMerger
-        merger = SPDX_DeepMerger([doc1, doc2], "https://example.com/spdx", "Test Document", "John Doe", "john@example.com")
-        merger.doc_creationinfo()
-        merger.doc_review_info()
-        merged_doc = merger.get_document()
-
-        # Verify that the merged document contains all the review information from both documents
-        assert len(merged_doc.reviews) == 2
-        assert merged_doc.reviews[0].reviewer == "Reviewer 1"
-        assert merged_doc.reviews[0].comment == "Looks good to me"
-        assert merged_doc.reviews[1].reviewer == "Reviewer 2"
-        assert merged_doc.reviews[1].comment == "I have some concerns about this file"
+        assert len(merge_doc.annotations) == 2
+        assert merge_doc.annotations[0].spdx_id == "SPDXRef-annotation-1"
+        assert merge_doc.annotations[0].annotation_type == AnnotationType.REVIEW
+        assert merge_doc.annotations[0].annotator.name == "John Smith"
+        assert merge_doc.annotations[0].annotation_comment == "Comment 1"
+        assert merge_doc.annotations[1].spdx_id == "SPDXRef-annotation-2"
+        assert merge_doc.annotations[1].annotation_type == AnnotationType.REVIEW
+        assert merge_doc.annotations[1].annotator.name == "John Smith"
+        assert merge_doc.annotations[1].annotation_comment == "Comment 2"
