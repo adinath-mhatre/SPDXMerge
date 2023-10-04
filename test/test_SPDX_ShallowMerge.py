@@ -40,7 +40,7 @@ class Test_SPDX_ShallowMerger:
 
         self.docs = [doc1,doc2]
         self.m = SPDX_ShallowMerger(doc_list=self.docs, docnamespace="http://example.com/spdx",
-                                    name="Test document", author="John Doe")
+                                    name="Test document", authortype="O", author="John Doe")
 
     def test_document(self):
         doc = self.m.create_document()
@@ -51,6 +51,7 @@ class Test_SPDX_ShallowMerger:
         assert doc.creation_info.document_namespace == "http://example.com/spdx"
         assert doc.creation_info.data_license == "CC0-1.0"
         assert len(doc.creation_info.creators) == 1
+        assert doc.creation_info.creators[0].actor_type == ActorType.ORGANIZATION
         assert doc.creation_info.creators[0].name == "John Doe"
 
         assert len(doc.packages) == 1

@@ -94,7 +94,7 @@ class TestSPDXDeepMerger:
 
         # Merge the two documents using SPDX_DeepMerger
         merger = SPDX_DeepMerger(doc_list=docs, docnamespace="https://example.com", name="Test Document",
-                                 author="Test Author")
+                                 authortype="O", author="Test Author")
         merge_doc = merger.create_document()
 
         # Verify that the merged document
@@ -104,6 +104,7 @@ class TestSPDXDeepMerger:
         assert merge_doc.creation_info.document_namespace == "https://example.com"
         assert merge_doc.creation_info.data_license == "CC0-1.0"
         assert len(merge_doc.creation_info.creators) == 1
+        assert merge_doc.creation_info.creators[0].actor_type == ActorType.ORGANIZATION
         assert merge_doc.creation_info.creators[0].name == "Test Author"
 
         assert len(merge_doc.packages) == 2

@@ -12,21 +12,28 @@ from spdx_tools.spdx.model import (
 
 class SPDX_DeepMerger():
 
-    def __init__(self,doc_list=None,docnamespace=None,name=None,author=None,email=None):
+    def __init__(self,doc_list=None,docnamespace=None,name=None,
+                 authortype=None,author=None,email=None):
         self.doc_list = doc_list
         self.docnamespace = docnamespace
         self.name = name
+        self.authortype = authortype
         self.author = author
         self.emailaddr = email
 
     def create_document(self):
+        if self.authortype in ["P", "p"]:
+            creator=[Actor(ActorType.PERSON, self.author, self.emailaddr)]
+        else:
+            creator=[Actor(ActorType.ORGANIZATION, self.author, self.emailaddr)]
+
         creation_info = CreationInfo(
             spdx_version="SPDX-2.3",
             spdx_id=DOCUMENT_SPDX_ID,
             name=self.name,
             data_license="CC0-1.0",
             document_namespace=self.docnamespace,
-            creators=[Actor(ActorType.PERSON, self.author, self.emailaddr)],
+            creators=creator,
             created=datetime.now(),
         )
 
