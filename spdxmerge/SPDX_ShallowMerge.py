@@ -26,7 +26,7 @@ class SPDX_ShallowMerger():
         for doc in self.doc_list:
             check_sum = Checksum(ChecksumAlgorithm.SHA1,doc.creation_info.document_comment)
             extDoc = ExternalDocumentRef(
-                document_ref_id=doc.creation_info.spdx_id,
+                document_ref_id="DocumentRef-" + str(uuid4()),
                 document_uri=doc.creation_info.document_namespace,
                 checksum=check_sum
             )
