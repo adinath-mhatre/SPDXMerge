@@ -10,6 +10,8 @@ from spdx_tools.spdx.model import (
     Document,
     ExternalDocumentRef,
     Package,
+    Relationship,
+    RelationshipType,
     SpdxNoAssertion,
 )
 
@@ -51,5 +53,11 @@ class SPDX_ShallowMerger():
         )
         package.version = "1.0"
         master_doc.packages = [package]
+
+        master_doc.relationships = [Relationship(
+            spdx_element_id=master_doc.creation_info.spdx_id,
+            relationship_type=RelationshipType.DESCRIBES,
+            related_spdx_element_id=package.spdx_id,
+        )]
 
         return master_doc
