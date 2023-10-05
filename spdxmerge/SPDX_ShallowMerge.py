@@ -51,6 +51,12 @@ class SPDX_ShallowMerger():
             name=self.name,
             download_location=SpdxNoAssertion(),
         )
+
+        if self.authortype in ["P", "p"]:
+            package.supplier = Actor(ActorType.PERSON, self.author, self.emailaddr)
+        else:
+            package.supplier = Actor(ActorType.ORGANIZATION, self.author, self.emailaddr)
+
         package.version = "1.0"
         master_doc.packages = [package]
 
