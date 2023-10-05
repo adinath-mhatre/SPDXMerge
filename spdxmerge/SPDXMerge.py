@@ -21,7 +21,7 @@ from spdxmerge.utils import read_docs
 @click.option("--authortype", prompt="SBoM author is single person or organization",
               help="Enter O for organization, P for single person", type=click.Choice(['P', 'p', 'O','o']), default='O')
 @click.option("--author", prompt="SBoM Author name", required=True, help="Author who is writing SBoM")
-@click.option("--email", prompt="SBoM author email address", help="Email address of the author")
+@click.option("--email", prompt="SBoM author email address", help="Email address of the author, Optional", default="")
 @click.option("--docnamespace", prompt="Document namespace", help="URL where document is stored or organization URL", default="https://spdx.organization.name")
 @click.option("--filetype", prompt="SBoM output file type SPDX tag value format - T or JSON - J",
               help="Enter T for SPDX tag value format, J for JSON", type=click.Choice(['T', 't', 'J','j']), default='J')
