@@ -16,11 +16,12 @@ from spdx_tools.spdx.model import (
 )
 
 class SPDX_ShallowMerger():
-    def __init__(self,doc_list=None,docnamespace=None,name=None,
+    def __init__(self,doc_list=None,docnamespace=None,name=None,version=None,
                  authortype=None,author=None,email=None):
         self.doc_list = doc_list
         self.docnamespace = docnamespace
         self.name = name
+        self.version = version
         self.authortype = authortype
         self.author = author
         self.emailaddr = email
@@ -64,7 +65,7 @@ class SPDX_ShallowMerger():
         else:
             package.supplier = Actor(ActorType.ORGANIZATION, self.author, self.emailaddr)
 
-        package.version = "1.0"
+        package.version = self.version
         master_doc.packages = [package]
 
         master_doc.relationships = [Relationship(

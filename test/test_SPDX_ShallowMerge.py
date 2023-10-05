@@ -40,7 +40,7 @@ class Test_SPDX_ShallowMerger:
 
         self.docs = [doc1,doc2]
         self.m = SPDX_ShallowMerger(doc_list=self.docs, docnamespace="http://example.com/spdx",
-                                    name="Test document", authortype="O", author="John Doe")
+                                    name="Test document", version="1.1", authortype="O", author="John Doe")
 
     def test_document(self):
         doc = self.m.create_document()
@@ -57,7 +57,7 @@ class Test_SPDX_ShallowMerger:
         assert len(doc.packages) == 1
         package = doc.packages[0]
         assert package.name == "Test document"
-        assert package.version == "1.0"
+        assert package.version == "1.1"
         assert isinstance(package.download_location, SpdxNoAssertion)
         assert len(doc.creation_info.external_document_refs) == 2
         assert doc.creation_info.external_document_refs[0].document_uri == "http://example.com/spdx"
