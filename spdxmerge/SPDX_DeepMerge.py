@@ -10,6 +10,8 @@ from spdx_tools.spdx.model import (
     RelationshipType,
 )
 
+TOOL_NAME = "SPDXMerge"
+
 class SPDX_DeepMerger():
 
     def __init__(self,doc_list=None,docnamespace=None,name=None,
@@ -23,9 +25,11 @@ class SPDX_DeepMerger():
 
     def create_document(self):
         if self.authortype in ["P", "p"]:
-            creator=[Actor(ActorType.PERSON, self.author, self.emailaddr)]
+            author=Actor(ActorType.PERSON, self.author, self.emailaddr)
         else:
-            creator=[Actor(ActorType.ORGANIZATION, self.author, self.emailaddr)]
+            author=Actor(ActorType.ORGANIZATION, self.author, self.emailaddr)
+
+        tool = Actor(ActorType.TOOL, TOOL_NAME, None)
 
         creation_info = CreationInfo(
             spdx_version="SPDX-2.3",
@@ -33,7 +37,7 @@ class SPDX_DeepMerger():
             name=self.name,
             data_license="CC0-1.0",
             document_namespace=self.docnamespace,
-            creators=creator,
+            creators=[author, tool],
             created=datetime.now(),
         )
 

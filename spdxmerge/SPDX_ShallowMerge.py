@@ -15,6 +15,8 @@ from spdx_tools.spdx.model import (
     SpdxNoAssertion,
 )
 
+TOOL_NAME = "SPDXMerge"
+
 class SPDX_ShallowMerger():
     def __init__(self,doc_list=None,docnamespace=None,name=None,version=None,
                  authortype=None,author=None,email=None):
@@ -28,9 +30,11 @@ class SPDX_ShallowMerger():
 
     def create_document(self):
         if self.authortype in ["P", "p"]:
-            creator=[Actor(ActorType.PERSON, self.author, self.emailaddr)]
+            author=Actor(ActorType.PERSON, self.author, self.emailaddr)
         else:
-            creator=[Actor(ActorType.ORGANIZATION, self.author, self.emailaddr)]
+            author=Actor(ActorType.ORGANIZATION, self.author, self.emailaddr)
+
+        tool = Actor(ActorType.TOOL, TOOL_NAME, None)
 
         external_references = []
         for doc in self.doc_list:
@@ -49,7 +53,7 @@ class SPDX_ShallowMerger():
             data_license="CC0-1.0",
             document_namespace=self.docnamespace,
             external_document_refs=external_references,
-            creators=creator,
+            creators=[author, tool],
             created=datetime.now(),
         )
         master_doc = Document(creation_info)
