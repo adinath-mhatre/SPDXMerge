@@ -58,6 +58,7 @@ class SPDX_ShallowMerger():
             spdx_id="SPDXRef-package-" + str(uuid4()),
             name=self.name,
             download_location=SpdxNoAssertion(),
+            files_analyzed=False
         )
 
         if self.authortype in ["P", "p"]:
