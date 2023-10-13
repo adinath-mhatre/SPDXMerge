@@ -4,7 +4,8 @@ from spdxmerge.SPDX_DeepMerge import SPDX_DeepMerger
 def create_merged_spdx_document(doc_list, docnamespace, name, version, authortype,
                                 author, email, merge_type):
     if merge_type == "deep":
-        merger = SPDX_DeepMerger(doc_list, docnamespace, name, authortype, author, email)
+        merger = SPDX_DeepMerger(doc_list, docnamespace, name, version,
+                                 authortype, author, email)
     elif merge_type == "shallow":
         merger = SPDX_ShallowMerger(doc_list, docnamespace, name, version,
                                     authortype, author, email)
