@@ -49,7 +49,7 @@ class SPDX_ShallowMerger():
         creation_info = CreationInfo(
             spdx_version="SPDX-2.3",
             spdx_id=DOCUMENT_SPDX_ID,
-            name=self.name,
+            name=f"{self.version}-{self.name}-shallow-merge",
             data_license="CC0-1.0",
             document_namespace=self.docnamespace,
             external_document_refs=external_references,
@@ -59,8 +59,8 @@ class SPDX_ShallowMerger():
         master_doc = Document(creation_info)
 
         package = Package(
-            spdx_id="SPDXRef-package-" + str(uuid4()),
-            name=self.name,
+            spdx_id=f"SPDXRef-{self.version}-{self.name}",
+            name=f"{self.version}-{self.name}",
             download_location=SpdxNoAssertion(),
             files_analyzed=False
         )

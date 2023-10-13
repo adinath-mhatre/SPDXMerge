@@ -38,7 +38,7 @@ def main(docpath, name, version, mergetype, authortype, author, email, docnamesp
         out_format = "spdx"
     else:
         out_format = "json"
-    write_file(doc, outpath + f"/merged-SBoM-{merge_type}-{name}.{out_format}")
+    write_file(doc, outpath + f"/{version}-{name}-{merge_type}-merge.{out_format}")
 
 
 if __name__ == "__main__":

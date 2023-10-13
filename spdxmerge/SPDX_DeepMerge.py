@@ -1,5 +1,4 @@
 from datetime import datetime
-from uuid import uuid4
 
 from spdx_tools.spdx.constants import DOCUMENT_SPDX_ID
 from spdx_tools.spdx.model import (
@@ -38,7 +37,7 @@ class SPDX_DeepMerger():
         creation_info = CreationInfo(
             spdx_version="SPDX-2.3",
             spdx_id=DOCUMENT_SPDX_ID,
-            name=self.name,
+            name=f"{self.version}-{self.name}-deep-merge",
             data_license="CC0-1.0",
             document_namespace=self.docnamespace,
             creators=[author, tool],
@@ -52,8 +51,8 @@ class SPDX_DeepMerger():
 
         # Create root package for merge document
         package = Package(
-            spdx_id="SPDXRef-package-" + str(uuid4()),
-            name=self.name,
+            spdx_id=f"SPDXRef-{self.version}-{self.name}",
+            name=f"{self.version}-{self.name}",
             download_location=SpdxNoAssertion(),
             files_analyzed=False,
             supplier=author,
